@@ -8,9 +8,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class LoadingLayout extends FrameLayout {
+public abstract class LoadingLayout extends FrameLayout {
 	private FrameLayout innerLayout;
-	private ImageView headerImage;
+	protected ImageView headerImage;
 	private TextView headerText;
 	private TextView subHeaderText;
 	
@@ -83,4 +83,6 @@ public class LoadingLayout extends FrameLayout {
 			subHeaderText.setVisibility(View.VISIBLE);
 		}
 	}
+	
+	protected abstract void onPull(float scaleValue);
 }

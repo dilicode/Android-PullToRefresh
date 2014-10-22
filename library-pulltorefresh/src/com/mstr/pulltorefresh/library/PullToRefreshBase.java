@@ -62,7 +62,7 @@ public abstract class PullToRefreshBase<V extends View> extends LinearLayout {
 		headerLayout = createLoadingLayout(context);
 		addView(headerLayout, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 		
-		refreshableView = createRefreshableView(context);
+		refreshableView = createRefreshableView(context, attrs);
 		addRefreshableView(context, refreshableView);
 	}
 	
@@ -74,13 +74,13 @@ public abstract class PullToRefreshBase<V extends View> extends LinearLayout {
 	}
 	
 	protected LoadingLayout createLoadingLayout(Context context) {
-		LoadingLayout loadingLayout = new LoadingLayout(context);
+		LoadingLayout loadingLayout = new RotateLoadingLayout(context);
 		loadingLayout.setVisibility(View.INVISIBLE);
 		
 		return loadingLayout;
 	}
 	
-	protected abstract V createRefreshableView(Context context);
+	protected abstract V createRefreshableView(Context context, AttributeSet attrs);
 	
 	protected abstract boolean isReadyForPull();
 	
@@ -155,8 +155,10 @@ public abstract class PullToRefreshBase<V extends View> extends LinearLayout {
 				isBeingDragged = false;
 				
 				if (state == State.RELEASE_TO_REFRESH && onRefreshListener != null) {
-					setState(State.REFRESHING);
-				} else if (state == State.PULL_TO_REFRESH) {
+					setState(State.REFRESHING); 
+				} else if (isRefreshing()) {
+					smoothScrollTo(0);
+				} else {
 					setState(State.RESET);
 				}
 				
@@ -191,11 +193,16 @@ public abstract class PullToRefreshBase<V extends View> extends LinearLayout {
 		
 		setHeaderScroll(scrollY);
 		
-		int headerLayoutContentHeight = getHeaderContentHeight();
-		if (state != State.RELEASE_TO_REFRESH && Math.abs(scrollY) > headerLayoutContentHeight) {
-			setState(State.RELEASE_TO_REFRESH);
-		} else if (state != State.PULL_TO_REFRESH && Math.abs(scrollY) <= headerLayoutContentHeight) {
-			setState(State.PULL_TO_REFRESH);
+		if (!isRefreshing()) {
+			int headerContentHeight = getHeaderContentHeight();
+			
+			headerLayout.onPull(Math.abs(scrollY) / (float)headerContentHeight);
+			
+			if (state != State.RELEASE_TO_REFRESH && Math.abs(scrollY) > headerContentHeight) {
+				setState(State.RELEASE_TO_REFRESH);
+			} else if (state != State.PULL_TO_REFRESH && Math.abs(scrollY) <= headerContentHeight) {
+				setState(State.PULL_TO_REFRESH);
+			}
 		}
 	}
 	

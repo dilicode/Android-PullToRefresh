@@ -20,8 +20,8 @@ public class PullToRefreshListView extends PullToRefreshBase<ListView> {
 	} 
 	
 	@Override
-	protected ListView createRefreshableView(Context context) {
-		return new ListView(context);
+	protected ListView createRefreshableView(Context context, AttributeSet attrs) {
+		return new ListView(context, attrs);
 	}
 	
 	@Override
