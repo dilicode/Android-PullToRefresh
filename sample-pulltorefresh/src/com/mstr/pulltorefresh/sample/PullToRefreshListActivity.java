@@ -14,7 +14,11 @@ import com.mstr.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.mstr.pulltorefresh.library.PullToRefreshListView;
 
 public class PullToRefreshListActivity extends Activity implements OnRefreshListener<ListView> {
-	private String[] items = Cheeses.sCheeseStrings;
+	private static final String[] items =  { "Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance", "Ackawi",
+			"Acorn", "Adelost", "Affidelice au Chablis", "Afuega'l Pitu", "Airag", "Airedale", "Aisy Cendre",
+			"Allgauer Emmentaler", "Abbaye de Belloc", "Abbaye du Mont des Cats", "Abertam", "Abondance", "Ackawi",
+			"Acorn", "Adelost", "Affidelice au Chablis", "Afuega'l Pitu", "Airag", "Airedale", "Aisy Cendre",
+			"Allgauer Emmentaler" };
 	
 	private LinkedList<String> list;
 

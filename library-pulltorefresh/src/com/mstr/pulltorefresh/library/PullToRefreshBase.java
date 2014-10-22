@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
@@ -60,7 +62,7 @@ public abstract class PullToRefreshBase<V extends View> extends LinearLayout {
 		touchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
 		
 		headerLayout = createLoadingLayout(context);
-		addView(headerLayout, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		addViewInternal(headerLayout, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 		
 		refreshableView = createRefreshableView(context, attrs);
 		addRefreshableView(context, refreshableView);
@@ -70,7 +72,7 @@ public abstract class PullToRefreshBase<V extends View> extends LinearLayout {
 		refreshableViewWrapper = new FrameLayout(context);
 		refreshableViewWrapper.addView(refreshableView, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		
-		addView(refreshableViewWrapper, new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		addViewInternal(refreshableViewWrapper, new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 	}
 	
 	protected LoadingLayout createLoadingLayout(Context context) {
@@ -186,6 +188,19 @@ public abstract class PullToRefreshBase<V extends View> extends LinearLayout {
 				requestLayout();
 			}
 		});
+	}
+	
+	@Override
+	public void addView(View child, int index, ViewGroup.LayoutParams params) {
+		if (refreshableView instanceof ViewGroup) {
+			((ViewGroup)refreshableView).addView(child, index, params);
+		} else {
+			throw new UnsupportedOperationException("addView not supported");
+		}
+	}
+	
+	private void addViewInternal(View child, LayoutParams params) {
+		super.addView(child, -1, params);
 	}
 	
 	private void pullEvent() {

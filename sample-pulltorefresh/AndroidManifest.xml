@@ -13,12 +13,23 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         
-        <activity android:name=".PullToRefreshListActivity">
+        <activity
+            android:name=".LauncherActivity"
+            android:label="PullToRefreshSample">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <activity
+            android:name=".PullToRefreshListActivity"
+            android:label="ListView">
+        </activity>
+        
+        <activity 
+            android:name=".PullToRefreshScrollViewActivity"
+            android:label="ScrollView"></activity>
+        
     </application>
-
 </manifest>
