@@ -346,6 +346,12 @@ public abstract class PullToRefreshBase<V extends View> extends LinearLayout {
 		}
 	}
 	
+	public void manualRefresh() {
+		if (!isRefreshing()) {
+			setState(State.REFRESHING);
+		}
+	}
+	
 	public static interface OnRefreshListener<V extends View> {
 		public void onPullDownToRefresh(PullToRefreshBase<V> view);
 		
