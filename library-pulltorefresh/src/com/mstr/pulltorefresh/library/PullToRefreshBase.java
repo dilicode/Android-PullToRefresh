@@ -1,13 +1,14 @@
 package com.mstr.pulltorefresh.library;
 
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
@@ -244,7 +245,7 @@ public abstract class PullToRefreshBase<V extends View> extends LinearLayout {
 	}
 	
 	private boolean isRefreshing() {
-		return state == State.REFRESHING;
+		return state == State.REFRESHING || state == State.MANUAL_REFRESHING;
 	}
 	
 	private void refreshLoadingLayoutSize() {
@@ -259,27 +260,26 @@ public abstract class PullToRefreshBase<V extends View> extends LinearLayout {
 	}
 	
 	private void setState(State state) {
-		if (this.state != state) {
-			switch (state) {
-			case PULL_TO_REFRESH:
-				headerLayout.pullToRefresh();
-				break;
-				
-			case RELEASE_TO_REFRESH:
-				headerLayout.releaseToRefresh();
-				break;
-				
-			case REFRESHING:
-				onRefreshing(true);
-				break;
-				
-			case RESET:
-				onReset();
-				break;
-			}
+		switch (state) {
+		case PULL_TO_REFRESH:
+			headerLayout.pullToRefresh();
+			break;
 			
-			this.state = state;
+		case RELEASE_TO_REFRESH:
+			headerLayout.releaseToRefresh();
+			break;
+			
+		case REFRESHING:
+		case MANUAL_REFRESHING:
+			onRefreshing(true);
+			break;
+			
+		case RESET:
+			onReset();
+			break;
 		}
+		
+		this.state = state;
 	}
 	
 	protected void disableLoadingLayoutVisibilityChanges() {
@@ -348,8 +348,63 @@ public abstract class PullToRefreshBase<V extends View> extends LinearLayout {
 	
 	public void manualRefresh() {
 		if (!isRefreshing()) {
-			setState(State.REFRESHING);
+			setState(State.MANUAL_REFRESHING);
 		}
+	}
+	
+	@Override
+	public Parcelable onSaveInstanceState() {
+		SavedState savedState = new SavedState(super.onSaveInstanceState());
+		savedState.stateValue = state.getValue();
+		
+		return savedState;
+	}
+	
+	@Override
+	public void onRestoreInstanceState(Parcelable parcelable) {
+		if (!(parcelable instanceof SavedState)) {
+			super.onRestoreInstanceState(parcelable);
+			return;
+		}
+		
+		SavedState savedState = (SavedState)parcelable;
+		state = State.mapIntToValue(savedState.stateValue);
+		if (state == State.REFRESHING || state == State.MANUAL_REFRESHING) {
+			setState(state);
+		}
+		
+		super.onRestoreInstanceState(savedState.getSuperState());
+	}
+	
+	private static class SavedState extends BaseSavedState {
+		int stateValue;
+		
+		public SavedState(Parcel source) {
+			super(source);
+			
+			stateValue = source.readInt();
+		}
+		
+		public SavedState(Parcelable superState) {
+			super(superState);
+		}
+		
+		@Override
+		public void writeToParcel(Parcel dest, int flags) {
+			super.writeToParcel(dest, flags);
+			
+			dest.writeInt(stateValue);
+		}
+		
+		public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
+			public SavedState createFromParcel(Parcel source) {
+				return new SavedState(source);
+			}
+			
+			public SavedState[] newArray(int size) {
+				return new SavedState[size];
+			}
+		};
 	}
 	
 	public static interface OnRefreshListener<V extends View> {
@@ -365,7 +420,9 @@ public abstract class PullToRefreshBase<V extends View> extends LinearLayout {
 		
 		RELEASE_TO_REFRESH(0x2),
 		
-		REFRESHING(0x8);
+		REFRESHING(0x8),
+		
+		MANUAL_REFRESHING(0x9);
 		
 		private int value;
 		
@@ -375,6 +432,16 @@ public abstract class PullToRefreshBase<V extends View> extends LinearLayout {
 		
 		public int getValue() {
 			return value;
+		}
+		
+		public static State mapIntToValue(final int stateInt) {
+			for (State state : State.values()) {
+				if (state.value == stateInt) {
+					return state;
+				}
+			}
+			
+			return RESET;
 		}
 	}
 	

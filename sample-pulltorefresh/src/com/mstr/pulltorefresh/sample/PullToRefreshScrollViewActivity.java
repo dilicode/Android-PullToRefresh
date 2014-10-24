@@ -22,17 +22,17 @@ public class PullToRefreshScrollViewActivity extends Activity implements OnRefre
 		pullToRefreshScrollView.setOnRefreshListener(this);
 	}
 	
-	
 	@Override
 	public void onPullDownToRefresh(PullToRefreshBase<ScrollView> view) {
 		new Handler().postDelayed(new Runnable() {
 			@Override
-			public void run() {}
+			public void run() {
+				pullToRefreshScrollView.onRefreshComplete();
+			}
 		}, 4000);
 		
 	}
 
 	@Override
 	public void onPullUpToRefresh(PullToRefreshBase<ScrollView> view) {}
-
 }

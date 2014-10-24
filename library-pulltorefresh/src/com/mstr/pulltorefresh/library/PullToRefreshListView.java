@@ -21,7 +21,10 @@ public class PullToRefreshListView extends PullToRefreshBase<ListView> {
 	
 	@Override
 	protected ListView createRefreshableView(Context context, AttributeSet attrs) {
-		return new ListView(context, attrs);
+		ListView listview = new ListView(context, attrs);
+		listview.setId(android.R.id.list);
+		
+		return listview;
 	}
 	
 	@Override
